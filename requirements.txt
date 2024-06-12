@@ -7,3 +7,7 @@ ipython==8.18.1
 # Django Rest Framework
 djangorestframework==3.15.1
 drf-spectacular==0.27.2
+djangorestframework-simplejwt==5.3.1
+PyJWT==2.8.0
+
+python-dotenv==0.21.1

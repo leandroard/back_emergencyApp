@@ -13,7 +13,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import dj_database_url
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
@@ -29,7 +31,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,8 +43,8 @@ INSTALLED_APPS = [
     'back_emergencyApp',
     'users',
     'rest_framework',
-    'drf_spectacular'
-   
+    'drf_spectacular',
+    'rest_framework_simplejwt'
 
 ]
 
@@ -77,7 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'back_emergencyApp.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -97,11 +97,16 @@ else:
         }
     }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
+    },
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
@@ -120,6 +125,9 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
@@ -133,7 +141,6 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -145,8 +152,7 @@ USE_I18N = True
 
 USE_TZ = True
 AUTH_USER_MODEL = 'users.User'
-
-
+PASSWORD_RESET_EXPIRE_DAYS = 1
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -164,3 +170,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_PASSWORD = ''
+DEFAULT_FROM_EMAIL = 'No Reply <contacto@afiasesoria.com>'
+EMAIL_HOST = os.environ.setdefault('EMAIL_HOST', 'mail.afiasesoria.com')
+EMAIL_PORT = os.environ.setdefault('EMAIL_PORT', '')
+EMAIL_HOST_USER = os.environ.setdefault('EMAIL_HOST_USER', 'servicioalcliente@afiasesoria.com')
+EMAIL_HOST_PASSWORD = os.environ.setdefault('EMAIL_HOST_PASSWORD', EMAIL_PASSWORD)
+EMAIL_USE_TLS = True
