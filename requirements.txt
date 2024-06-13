@@ -11,3 +11,9 @@ djangorestframework-simplejwt==5.3.1
 PyJWT==2.8.0
 
 python-dotenv==0.21.1
+pillow==10.3.0
+
+celery==5.4.0
+redis
+django_celery_beat
+ipython==8.18.1

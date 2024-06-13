@@ -18,11 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from users.urls import api_urls as user_urls
-
+from main.urls import api_urls as main_api_urls
 
 api_urls = ([
-    path('users/', include(user_urls, namespace='users')),
+    path('main/', include(main_api_urls, namespace='users')),
 ], 'api')
 
 

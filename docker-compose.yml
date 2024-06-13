@@ -20,9 +20,51 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     environment:
       - DATABASE_NAME=my-app
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    command: ["/scripts/celery-worker.sh"]
+    volumes:
+      - .:/src
+      - ./scripts:/scripts
+    depends_on:
+      - web
+      - redis
+    environment:
+      - DATABASE_NAME=my-app
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  celery-beat:
+    build: .
+    command: ["/scripts/celery-beat.sh"]
+    volumes:
+      - .:/src
+      - ./scripts:/scripts
+    depends_on:
+      - web
+      - redis
+    environment:
+      - DATABASE_NAME=my-app
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
