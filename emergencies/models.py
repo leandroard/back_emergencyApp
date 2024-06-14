@@ -3,11 +3,11 @@ from users.models import User
 
 class EmergencyType(models.Model):
     name = models.CharField(max_length=220)
-    icon = models.ImageField('/emergencies')
+    icon = models.ImageField()
 
     class Meta:
-        verbose_name = "Emergencia"
-        verbose_name_plural = "Emergencias"
+        verbose_name = "Tipo de Emergencia"
+        verbose_name_plural = "Tipos de Emergencias"
 
 
 class Emergency(models.Model):
