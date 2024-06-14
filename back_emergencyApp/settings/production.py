@@ -11,15 +11,12 @@ CSRF_TRUSTED_ORIGINS = [
     '',
 ]
 SECRET_KEY = get_secret('DJANGO_SECRET_KEY')
-
 if get_secret('DATABASE_URL'):
     import dj_database_url
 
     DATABASES = {
         'default': dj_database_url.config()
     }
-    DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
-
 else:
     POSTGRES_USER = get_secret('POSTGRES_USER')
     POSTGRES_PASSWORD = get_secret('POSTGRES_PASSWORD')
@@ -27,7 +24,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'emergencies',
+            'NAME': 'project_name',
             'USER': POSTGRES_USER,
             'PASSWORD': POSTGRES_PASSWORD,
             'HOST': 'db',
