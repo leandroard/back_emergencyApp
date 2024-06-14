@@ -12,7 +12,7 @@ services:
 
   web:
     build: .
-    command: ["/scripts/command-dev.sh"]
+    command: ["/scripts/wait-for-it.sh", "db:5432", "--", "/scripts/command-dev.sh"]
     volumes:
       - .:/src
       - ./scripts:/scripts
