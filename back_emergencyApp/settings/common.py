@@ -23,17 +23,6 @@ IS_PRODUCTION = ENVIRONMENT == "production"
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=036rs3*opz4+w3#xnm#21=zv-dubgl3&d%&q7%3o4v%j9$95x'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
 # Application definition
 DEPENDENCIES_APPS = [
     'django.contrib.admin',
