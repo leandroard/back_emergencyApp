@@ -26,7 +26,7 @@ else:
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'emergencies',
             'USER': POSTGRES_USER,
             'PASSWORD': POSTGRES_PASSWORD,
