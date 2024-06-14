@@ -5,11 +5,11 @@ DEBUG = True
 
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-ALLOWED_HOSTS = ['localhost', 'http://emergencies.byteobe.com/', 'https://emergencies.byteobe.com/']
+ALLOWED_HOSTS = ['localhost', 'emergencies.byteobe.com:8000', 'emergencies.byteobe.com:8000']
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://emergencies.byteobe.com',
-    'https://emergencies.byteobe.com'
+    'http://emergencies.byteobe.com:8000',
+    'https://emergencies.byteobe.com:8000'
 ]
 SECRET_KEY = get_secret('DJANGO_SECRET_KEY')
 if get_secret('DATABASE_URL'):
