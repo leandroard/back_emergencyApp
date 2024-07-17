@@ -36,7 +36,7 @@ class UserRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
 
 @extend_schema(tags=['Authenticate'])
 class TokenObtainAPIView(TokenObtainPairView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = [permissions.AllowAny]
     serializer_class = CustomTokenObtainPairSerializer
 
     @extend_schema(
@@ -45,7 +45,17 @@ class TokenObtainAPIView(TokenObtainPairView):
         methods=["post"]
     )
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+        
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response(
+                {"detail": _("Credenciales inválidas. Por favor, verifique su nombre de usuario y contraseña.")},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
 @extend_schema(tags=['Authenticate'])
