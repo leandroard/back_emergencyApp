@@ -79,10 +79,10 @@ class RegisterAPIView(GenericAPIView):
         except User.DoesNotExist:
             email = request.data['email']
             # Generate a username value based in the email value
-            #username = User.generate_username(email)
+            username = User.generate_username(email)
 
             user = User.objects.create_user(
-                username="username",
+                username=request.data['email'],
                 email=email,
                 first_name=request.data['first_name'],
                 last_name=request.data['last_name'],
