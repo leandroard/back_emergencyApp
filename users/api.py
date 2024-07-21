@@ -78,8 +78,6 @@ class RegisterAPIView(GenericAPIView):
             return Response({'detail': _('Ya existe un usuario con este correo o nombre de usuario')}, status=status.HTTP_409_CONFLICT)
         except User.DoesNotExist:
             email = request.data['email']
-            # Generate a username value based in the email value
-            username = User.generate_username(email)
 
             user = User.objects.create_user(
                 username=request.data['email'],
