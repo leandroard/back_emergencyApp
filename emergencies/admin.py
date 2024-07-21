@@ -4,9 +4,8 @@ from .models import EmergencyType, Emergency
 
 @admin.register(EmergencyType)
 class EmergenciesTypeAdmin(admin.ModelAdmin):
-    pass
-
+    list_display = ('id', 'name' )
 
 @admin.register(Emergency)
 class  EmergencyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'user', 'emergency_type')

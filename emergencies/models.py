@@ -9,6 +9,9 @@ class EmergencyType(models.Model):
         verbose_name = "Tipo de Emergencia"
         verbose_name_plural = "Tipos de Emergencias"
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Emergency(models.Model):
     STATUS_CHOICES = [
@@ -25,6 +28,9 @@ class Emergency(models.Model):
         default='active',
     )
     created_at = models.DateTimeField(auto_now_add=True, )
+
+    def __str__(self) -> str:
+        return self.emergency_type
 
     class Meta:
         verbose_name = 'emergency'
