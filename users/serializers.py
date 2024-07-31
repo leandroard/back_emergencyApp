@@ -8,19 +8,19 @@ class UserTokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email')
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'number_id')
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id','first_name', 'last_name', 'email')
+        fields = ('id','first_name', 'last_name', 'email', 'number_id')
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'password')
+        fields = ('first_name', 'last_name', 'number_id', 'email', 'password')
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer): # noqa
