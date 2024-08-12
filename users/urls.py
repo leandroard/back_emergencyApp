@@ -1,8 +1,9 @@
 from django.urls import path
 from .api import UserRetrieveDestroyAPIView, TokenObtainAPIView, RegisterAPIView, ResetPasswordCodeApiView, \
-    ResetPasswordCodeVerifyApiView, ResetPasswordApiView
+    ResetPasswordCodeVerifyApiView, ResetPasswordApiView, CurrentUserAPIView
 
 api_urls = ([
+        path("current/", CurrentUserAPIView.as_view(), name="get-current-user"),
                 path('users/<int:pk>/', UserRetrieveDestroyAPIView.as_view(), name='user-retrieve-destroy'),
                 path("login/", TokenObtainAPIView.as_view(), name="user-login"),
                 path("register/", RegisterAPIView.as_view(), name="user-register"),

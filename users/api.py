@@ -20,6 +20,10 @@ from datetime import timedelta
 import datetime
 import jwt
 from .views import generate_code
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema(tags=['Users'])
@@ -27,6 +31,28 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
 
+@extend_schema(tags=['Users'])
+class CurrentUserAPIView(GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        tags=["Users"],
+        summary=_("Obtiene el Usuario Actual utilizando el token en el HEADER"),
+        description=_("Obtiene el Usuario Actual utilizando el token en el HEADER"),
+        responses={
+            200: UserSerializer,
+            401: OpenApiResponse(description=_('Usted no tiene permiso para ver este usuario')),
+        },
+        methods=["get"]
+    )
+    def get(self, request):
+        """
+        Authenticate current user and return his/her details
+        """
+        current_user = UserSerializer(request.user, context={'request': request})
+        logger.info(f"Authenticating current user {request.user.username}")
+
+        return Response(current_user.data)
 
 @extend_schema(tags=['Users'])
 class UserRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
@@ -82,6 +108,7 @@ class RegisterAPIView(GenericAPIView):
             user = User.objects.create_user(
                 username=request.data['email'],
                 email=email,
+                number_id=request.data['number_id'],
                 first_name=request.data['first_name'],
                 last_name=request.data['last_name'],
                 password=request.data["password"],
