@@ -6,7 +6,7 @@ import random
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
-    number_id = models.IntegerField(unique=True)
+    number_id = models.IntegerField(unique=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

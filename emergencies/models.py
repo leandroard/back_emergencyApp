@@ -30,7 +30,7 @@ class Emergency(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, )
 
     def __str__(self) -> str:
-        return self.emergency_type
+        return self.emergency_type.name
 
     class Meta:
         verbose_name = 'emergency'
