@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 
 from .models import User, CodeRecoverPassword
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import UserSerializer, UserCreateSerializer, CustomTokenObtainPairSerializer, TokenOutputSerializer, \
     ResetPasswordSerializer, ResetPasswordRequestSerializer, ResetPasswordCodeValidateRequestSerializer
 from django.utils.translation import gettext_lazy as _
@@ -82,6 +82,10 @@ class TokenObtainAPIView(TokenObtainPairView):
             )
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+@extend_schema(tags=['Authenticate'])
+class TokenRefreshAPIView(TokenRefreshView):
+    pass
 
 
 @extend_schema(tags=['Authenticate'])
