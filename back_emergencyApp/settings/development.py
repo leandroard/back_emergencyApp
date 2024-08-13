@@ -47,3 +47,11 @@ else:
             'PORT': 5432,
         }
     }
+
+
+# Simple JWT
+SIMPLE_JWT.update({
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    'SIGNING_KEY': SECRET_KEY,
+})
