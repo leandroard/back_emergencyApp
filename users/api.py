@@ -9,11 +9,10 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import User, CodeRecoverPassword
+from .models import User, CodeRecoverPassword, Role, EmergencyRoleModel
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .serializers import UserSerializer, UserCreateSerializer, CustomTokenObtainPairSerializer, TokenOutputSerializer, \
-    ResetPasswordSerializer, ResetPasswordRequestSerializer, ResetPasswordCodeValidateRequestSerializer
+from .serializers import UserSerializer, UserCreateSerializer, CustomTokenObtainPairSerializer, TokenOutputSerializer, ResetPasswordSerializer, ResetPasswordRequestSerializer, ResetPasswordCodeValidateRequestSerializer, EmergencyRoleSerializerRequest
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import timedelta
@@ -116,8 +115,59 @@ class RegisterAPIView(GenericAPIView):
                 first_name=request.data['first_name'],
                 last_name=request.data['last_name'],
                 password=request.data["password"],
+                role= Role.objects.get(name=Role.CIUDADANO)
             )
             return Response(UserSerializer(user, context={'request': request}).data)
+            
+@extend_schema(tags=['Change Role'])
+class ChangeRoleAPIView(GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary=_("Solicitud de cambio de rol"),
+        description=_("Crear una solicitud de cambio de rol"),
+        request=EmergencyRoleSerializerRequest,
+        responses={
+            200: UserSerializer,
+            400: {"description": "Datos inválidos"},
+            404: {"description": "Rol no encontrado"}
+        },
+        methods=["post"]
+    )
+    def post(self, request, *args, **kwargs):
+        """
+        Create a role change request
+        """
+        user = request.user
+        serializer = EmergencyRoleSerializerRequest(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        new_role_name = serializer.validated_data['role']
+        
+        try:
+            new_role = Role.objects.get(name=new_role_name)
+        except Role.DoesNotExist:
+            return Response({'detail': _('El rol especificado no existe')}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Create or update EmergencyRoleModel as a pending request
+        emergency_role, created = EmergencyRoleModel.objects.update_or_create(
+            user=user,
+            defaults={
+                'number_id': serializer.validated_data.get('number_id', ''),
+                'adress': serializer.validated_data.get('adress', ''),
+                'plate_vehicle': serializer.validated_data.get('plate_vehicle', ''),
+                'requested_role': new_role,
+                'status': EmergencyRoleModel.STATUS_PENDING
+            }
+        )
+        
+        return Response({
+            'message': _('Solicitud de cambio de rol creada exitosamente'),
+            'status': emergency_role.get_status_display()
+        })
+
 
 
 
