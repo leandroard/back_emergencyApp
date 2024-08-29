@@ -45,7 +45,6 @@ class EmergencyRoleSerializerRequest(serializers.Serializer):
 
 
 class EmeregencyRoleSerializerResponse(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
 
     class Meta:
         model = EmergencyRoleModel
