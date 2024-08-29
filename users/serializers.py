@@ -48,7 +48,7 @@ class EmeregencyRoleSerializerResponse(serializers.Serializer):
 
     class Meta:
         model = EmergencyRoleModel
-        fields = '__all__'
+        fields = ('__all__')
 
 
 class TokenOutputSerializer(serializers.Serializer): # noqa
