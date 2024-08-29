@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 from .models import User, CodeRecoverPassword, Role, EmergencyRoleModel
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .serializers import UserSerializer, UserCreateSerializer, CustomTokenObtainPairSerializer, TokenOutputSerializer, ResetPasswordSerializer, ResetPasswordRequestSerializer, ResetPasswordCodeValidateRequestSerializer, EmergencyRoleSerializerRequest
+from .serializers import UserSerializer, UserCreateSerializer, CustomTokenObtainPairSerializer, TokenOutputSerializer, ResetPasswordSerializer, ResetPasswordRequestSerializer, ResetPasswordCodeValidateRequestSerializer, EmergencyRoleSerializerRequest, EmeregencyRoleSerializerResponse
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import timedelta
@@ -38,7 +38,7 @@ class UserListAPIView(generics.ListAPIView):
 @extend_schema(tags=['postulations'])
 class EmergencyRoleListAPIView(generics.ListAPIView):
     queryset = EmergencyRoleModel.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = EmeregencyRoleSerializerResponse
 
 @extend_schema(tags=['Users'])
 class CurrentUserAPIView(GenericAPIView):
