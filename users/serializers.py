@@ -44,7 +44,7 @@ class EmergencyRoleSerializerRequest(serializers.Serializer):
     plate_vehicle = serializers.CharField(max_length=255, required=False)
 
 
-class EmeregencyRoleSerializerResponse(serializers.Serializer):
+class EmeregencyRoleSerializerResponse(serializers.ModelSerializer):
     user = UserSerializer()
 
     class Meta:
