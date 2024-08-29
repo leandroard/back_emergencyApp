@@ -44,6 +44,13 @@ class EmergencyRoleSerializerRequest(serializers.Serializer):
     plate_vehicle = serializers.CharField(max_length=255, required=False)
 
 
+class EmeregencyRoleSerializerResponse(serializers.Serializer):
+
+    class Meta:
+        model = EmergencyRoleModel
+        fields = '__all__'
+
+
 class TokenOutputSerializer(serializers.Serializer): # noqa
     refresh = serializers.CharField(label=_("Refresh token"))
     access = serializers.CharField(label=_("Access token"))

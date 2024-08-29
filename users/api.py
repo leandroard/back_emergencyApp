@@ -31,6 +31,16 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = UserCreateSerializer
 
 @extend_schema(tags=['Users'])
+class UserListAPIView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+@extend_schema(tags=['postulations'])
+class EmergencyRoleListAPIView(generics.ListAPIView):
+    queryset = EmergencyRoleModel.objects.all()
+    serializer_class = UserSerializer
+
+@extend_schema(tags=['Users'])
 class CurrentUserAPIView(GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -52,6 +62,9 @@ class CurrentUserAPIView(GenericAPIView):
         logger.info(f"Authenticating current user {request.user.username}")
 
         return Response(current_user.data)
+
+
+
 
 @extend_schema(tags=['Users'])
 class UserRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
