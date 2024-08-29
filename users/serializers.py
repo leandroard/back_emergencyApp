@@ -45,11 +45,12 @@ class EmergencyRoleSerializerRequest(serializers.Serializer):
 
 
 class EmeregencyRoleSerializerResponse(serializers.ModelSerializer):
-    role = RoleSerializer()
+    requested_role = RoleSerializer()
+    user = UserSerializer()
 
     class Meta:
         model = EmergencyRoleModel
-        fields = ('id', 'user', 'status', 'role', 'plate_vehicle' )
+        fields = ('id', 'user', 'status', 'requested_role', 'plate_vehicle' )
 
 
 class TokenOutputSerializer(serializers.Serializer): # noqa
