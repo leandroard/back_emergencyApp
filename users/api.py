@@ -2,17 +2,22 @@ from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
+from django.db import transaction
 from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
 from rest_framework import generics, permissions, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.utils.translation import gettext as _
+
 
 from .models import User, CodeRecoverPassword, Role, EmergencyRoleModel
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .serializers import UserSerializer, UserCreateSerializer, CustomTokenObtainPairSerializer, TokenOutputSerializer, ResetPasswordSerializer, ResetPasswordRequestSerializer, ResetPasswordCodeValidateRequestSerializer, EmergencyRoleSerializerRequest, EmeregencyRoleSerializerResponse
+from .serializers import UserSerializer, UserCreateSerializer, CustomTokenObtainPairSerializer, TokenOutputSerializer, \
+    ResetPasswordSerializer, ResetPasswordRequestSerializer, ResetPasswordCodeValidateRequestSerializer, \
+    EmergencyRoleSerializerRequest, EmeregencyRoleSerializerResponse
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import timedelta
@@ -20,7 +25,6 @@ import datetime
 import jwt
 from .views import generate_code
 import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -30,15 +34,18 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
 
+
 @extend_schema(tags=['Users'])
 class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
 @extend_schema(tags=['postulations'])
 class EmergencyRoleListAPIView(generics.ListAPIView):
     queryset = EmergencyRoleModel.objects.all()
     serializer_class = EmeregencyRoleSerializerResponse
+
 
 @extend_schema(tags=['Users'])
 class CurrentUserAPIView(GenericAPIView):
@@ -64,8 +71,6 @@ class CurrentUserAPIView(GenericAPIView):
         return Response(current_user.data)
 
 
-
-
 @extend_schema(tags=['Users'])
 class UserRetrieveDestroyAPIView(generics.RetrieveDestroyAPIView):
     queryset = User.objects.all()
@@ -84,7 +89,7 @@ class TokenObtainAPIView(TokenObtainPairView):
     )
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        
+
         try:
             serializer.is_valid(raise_exception=True)
         except Exception as e:
@@ -95,6 +100,7 @@ class TokenObtainAPIView(TokenObtainPairView):
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
+
 @extend_schema(tags=['Authenticate'])
 class TokenRefreshAPIView(TokenRefreshView):
     pass
@@ -103,35 +109,47 @@ class TokenRefreshAPIView(TokenRefreshView):
 @extend_schema(tags=['Authenticate'])
 class RegisterAPIView(GenericAPIView):
     permission_classes = [permissions.AllowAny]
+    serializer_class = UserCreateSerializer
 
     @extend_schema(
         summary=_("Registrar un nuevo Usuario"),
         description=_("Registrar un nuevo Usuario"),
-        request=UserCreateSerializer,
-        responses={200: UserSerializer},
+        responses={201: UserSerializer},
         methods=["post"]
     )
     def post(self, request, *args, **kwargs):
         """
-        Register a new user and return it's details
+        Register a new user and return its details
         """
-        try:
-            User.objects.get(email=request.data["email"])
-            return Response({'detail': _('Ya existe un usuario con este correo o nombre de usuario')}, status=status.HTTP_409_CONFLICT)
-        except User.DoesNotExist:
-            email = request.data['email']
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            user = User.objects.create_user(
-                username=request.data['email'],
-                email=email,
-                number_id=request.data['number_id'],
-                first_name=request.data['first_name'],
-                last_name=request.data['last_name'],
-                password=request.data["password"],
-                role= Role.objects.get(name=Role.CIUDADANO)
-            )
-            return Response(UserSerializer(user, context={'request': request}).data)
-            
+        email = serializer.validated_data['email']
+        if User.objects.filter(email=email).exists():
+            return Response({'detail': _('Ya existe un usuario con este correo')}, status=status.HTTP_409_CONFLICT)
+
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    number_id=serializer.validated_data['number_id'],
+                    first_name=serializer.validated_data['first_name'],
+                    last_name=serializer.validated_data['last_name'],
+                    password=serializer.validated_data['password'],
+                )
+
+                role, _ = Role.objects.get_or_create(name=Role.CIUDADANO)
+                user.role = role
+                user.save()
+
+        except Exception as e:
+            return Response({'detail': _('Error al crear el usuario')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(UserSerializer(user, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
 @extend_schema(tags=['Change Role'])
 class ChangeRoleAPIView(GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -153,17 +171,17 @@ class ChangeRoleAPIView(GenericAPIView):
         """
         user = request.user
         serializer = EmergencyRoleSerializerRequest(data=request.data)
-        
+
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         new_role_name = serializer.validated_data['role']
-        
+
         try:
             new_role = Role.objects.get(name=new_role_name)
         except Role.DoesNotExist:
             return Response({'detail': _('El rol especificado no existe')}, status=status.HTTP_404_NOT_FOUND)
-        
+
         # Create or update EmergencyRoleModel as a pending request
         emergency_role, created = EmergencyRoleModel.objects.update_or_create(
             user=user,
@@ -175,19 +193,16 @@ class ChangeRoleAPIView(GenericAPIView):
                 'status': EmergencyRoleModel.STATUS_PENDING
             }
         )
-        
+
         return Response({
             'message': _('Solicitud de cambio de rol creada exitosamente'),
             'status': emergency_role.get_status_display()
         })
 
 
-
-
 class ResetPasswordCodeApiView(APIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = ResetPasswordRequestSerializer
-
 
     def post(self, request, *args, **kwargs):
         serializer = ResetPasswordRequestSerializer(data=request.data)
@@ -225,7 +240,6 @@ class ResetPasswordCodeApiView(APIView):
 
         else:
             return Response({'detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ResetPasswordCodeVerifyApiView(APIView):
@@ -272,7 +286,8 @@ class ResetPasswordApiView(APIView):
                 user.save()
             return Response({'detail': 'El cambio de contraseña a sido exitoso!'})
         except ValidationError as e:
-            return Response({'detal': 'La contraseña debe ser mayor a 8 caracteres y contener como minimo una letra'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detal': 'La contraseña debe ser mayor a 8 caracteres y contener como minimo una letra'},
+                            status=status.HTTP_400_BAD_REQUEST)
         except jwt.ExpiredSignatureError:
             return Response({'detail': 'El token a caducado'})
         except jwt.DecodeError:

@@ -1,0 +1,30 @@
+[
+  {
+    "model": "users.role",
+    "pk": 1,
+    "fields": {
+      "name": "ciudadano"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 2,
+    "fields": {
+      "name": "policia"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 3,
+    "fields": {
+      "name": "ambulancia"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 4,
+    "fields": {
+      "name": "bomberos"
+    }
+  }
+]
